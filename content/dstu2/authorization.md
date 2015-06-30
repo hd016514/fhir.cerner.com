@@ -22,7 +22,6 @@ Once approved, a **client identifier** will be provided to you for use with the 
 The Cerner Authorization Server supports many, but not all of the SMART or OAuth scopes. The following scopes are supported.
 
 * online_access
-* offline_access - coming Q3 2015
 * launch
 
 ### Requesting an authorization code ###
