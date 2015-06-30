@@ -4,8 +4,6 @@
 ### Introduction ###
 The Cerner Authorization Server currently supports OAuth 2.0 [1] SMART [2, 3] on FHIR launch workflows. As a client, it will require interaction between the client (you), the user, the authorization server, a SMART Launch server and a FHIR resource server.
 
-![alt text](http://wiki.cloud.cerner.corp/images/3/33/Oauth-2-1.png "FHIR/Authorization workflow diagram")
-
 ### Registration ###
 In order for your client application to utilize any FHIR protected resources, you must first register your client application. To do this, you can contact your Cerner representative with the following information, the following fields are **required**.
 
