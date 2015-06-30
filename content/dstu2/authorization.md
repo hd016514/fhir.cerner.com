@@ -25,11 +25,11 @@ The Cerner Authorization Server supports many, but not all of the SMART or OAuth
 * launch
 
 ### Requesting an authorization code ###
-Cerner currently supports the SMART launch workflow from within an EHR, such as Cerner Millennium's Powerchart. This allows for current context information (patient info, encounter info, user info, etc.) to be provided to the client application upon launching. Below is a flowchart of the EHR SMART luanch workflow.
+Cerner currently supports the SMART launch workflow from within an EHR, such as Cerner Millennium's PowerChart. This allows for current context information (patient info, encounter info, user info, etc.) to be provided to the client application upon launching. Below is a flowchart of the EHR SMART launch workflow.
 
 ![alt text](http://www.websequencediagrams.com/cgi-bin/cdraw?lz=dGl0bGUgRUhSIEFwcCBMYXVuY2ggRmxvdwoKTm90ZSAgbGVmdCBvZiBFSFI6IFVzZXIgbAAgBWVzIGFwcApFSFItPj5BcHA6IFJlZGlyZWN0IHRvIGFwcDoAIgYAQQZyaWdoAEIFACMHcXVlc3QgYXV0aG9yaXphdGlvbgpBcHAtPj4AYwUAPwxlaHI6ACEIZQCBARRPbiBhcHByb3ZhbABzHHIAgRgHX3VyaT9jb2RlPTEyMyYuLi4AcwYAgVsFUE9TVCAvdG9rZW4AGgkAggIGAIF6DUNyZWF0ZSAAIwU6XG4ge1xuYWNjZXNzXwA2BT1zZWNyZXQtAEMFLXh5eiZcbnBhdGllbnQ9NDU2JlxuZXhwaXJlc19pbjogMzYwMFxuLi4uXG59Cn0AgksGAIJLBVsATgYAYQYgcmVzcG9uc2VdAIMSBwCCRA5BACUGAF8HIGRhdGFcbnZpYSBGSElSIEFQSQCBWgtHRVQgL2ZoaXIvUACBDwYvNDU2XG5BAIMBDDogQmVhcmVyIACBOxAAg2wFAIEaB3tyZXNvdXJjZVR5cGU6ICIASAciLCAiYmlydGhEYXRlIjogLi4ufQo&s=default "SMART launch diagram")
 
-Once a launch context is received by your client from the SMART launch server, it must be sent to the authorization server so that an authorization code may be requested. To request an authorization code, to turn in for an access code, you will need to issue a **GET** request to the authorization servers' authorize endpoint. At thsi point the authorization server will redirect the user to authenticate if they are not already authenticated. Your application should use the systems browser for performing this exchange rather than an embedded browser. Using embedded browsers prevents single sign-on and authentication may fail for certain organizations who implement third party authentication systems.
+Once a launch context is received by your client from the SMART launch server, it must be sent to the authorization server so that an authorization code may be requested. To request an authorization code, to turn in for an access code, you will need to issue a **GET** request to the authorization server's authorize endpoint. At this point the authorization server will redirect the user to authenticate if they are not already authenticated. Your application should use the system's browser for performing this exchange rather than an embedded browser. Using embedded browsers prevents single sign-on and authentication may fail for certain organizations who implement third party authentication systems.
 
 The authorize endpoints are tenant specific, which means you will need to know the specific tenant ID of the tenants whose data you are going to request access to as well as the following **required** query parameters.
 
@@ -47,16 +47,16 @@ It is also recommended that you provide the following query parameters.
 https://authorization.stagingcerner.com/oauth2/{TENANT_ID}/authorize?response_type=code&client_id={YOUR_CLIENT_ID}&state=12345&redirect_uri=https%3A%2F%2Ftest.com%2Fcb
 ```
 
-If the user is not currently have an active session [4], the Authorization Server will redirect the user to the identity provider for the tenant in order to authenticate. 
+If the user does not currently have an active session [4], the Authorization Server will redirect the user to the identity provider for the tenant in order to authenticate. 
 
-If successful, the authorization server will redirect the user-agent back to your client apps redirect_uri with a **code** query paramter. This is your authorization code that you will exchange for an access token.
+If successful, the authorization server will redirect the user-agent back to your client app's redirect_uri with a **code** query paramter. This is your authorization code that you will exchange for an access token.
 
 ```
 https://test.com/cb?code=1234-567890ab-cdef
 ```
 
 ### Requesting an access token ###
-Once you have your authorization code, you can now make a back-channel POST to the authorization servers token endpoint to request an access token. Following the OAuth 2.0 [1] spec, the authorization server accepts a content type of **application/x-www-form-urlencoded** POST from your client application with the following information.
+Once you have your authorization code, you can now make a back-channel POST to the authorization server's token endpoint to request an access token. Following the OAuth 2.0 [1] spec, the authorization server accepts a content type of **application/x-www-form-urlencoded** POST from your client application with the following information.
 
 * grant_type
 * code
@@ -85,16 +85,16 @@ If successful, the authorization server will return a **200 OK** response with a
 The bearer access token returned from the authorization server is a JSON Web Token (JWT) [6]. The JWT is what you provide to the protected FHIR resource. If a refresh token was also requested, it will be returned as well. Access tokens are good for 10 minutes and it is recommended refreshing it before use if less than 5 minutes remain before it expires.  
 
 ### Using an access token ###
-In order to use an access token, you need to provide the access token recieved from the authorization server to the FHIR protected resource. The following is a non-normative example of the usage of the token to access a protected RESTful web service on a resource server, this needs to be added as an authorization HTTP header.
+In order to use an access token, you need to provide the access token recieved from the authorization server to the FHIR protected resource. The following is a non-normative example of the usage of the token to access a protected RESTful web service on a resource server.  It will need to be added as an authorization HTTP header.
 
 ```
 Authorization: Bearer {ACCESS_TOKEN}
 ```
 
-If the access token is valid, the FHIR protected resource will grant your client application access to it's protected resources.
+If the access token is valid, and your application is authorized, the FHIR resource server will allow your client application to access its protected resources.
 
 ### Using a Refresh Token ###
-The authorization server has support for **online access** refresh tokens. In order to use the refresh token, the users session **must** remain active. To request a refresh token, you must add **online_access** to the scope query parameter when requesting an authorization code. If this scope is not added, a refresh token will not be returned. Following the OAuth 2.0 [1] spec, the authorization server accepts a content type of **application/x-www-form-urlencoded** POST from your client application with the following information.
+The authorization server has support for **online access** refresh tokens. In order to use a refresh token, the user's session **must** remain active. To request a refresh token, you must add **online_access** to the scope query parameter when requesting an authorization code. If this scope is not added, a refresh token will not be returned. Following the OAuth 2.0 spec [1], the authorization server accepts a content type of **application/x-www-form-urlencoded** POST from your client application with the following information.
 
 * grant_type
 * refresh_token
@@ -113,7 +113,7 @@ If successful, the authorization server will return a **200 OK** response with a
 }
 ```
 
-The refresh token issued is good while the users session is still valid. 
+The refresh token issued is good while the user's session is still valid. 
 
 ##### References #####
 [1] https://tools.ietf.org/html/rfc6749  
